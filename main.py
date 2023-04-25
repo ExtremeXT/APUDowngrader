@@ -9,32 +9,24 @@ try:
     import py_sip_xnu
 except:
     logging.error("Could not import py_sip_xnu! Please run pip3 install py_sip_xnu.")
-    sys.exit(-1)
+    sys.exit()
 
 # Thanks to OCLP for some of the code
 # https://github.com/dortania/OpenCore-Legacy-Patcher/blob/main/resources/sys_patch/sys_patch.py
-
-# TODO: Tidy up the error codes
-# Error code -1 = files not detected
-# Error code 0 = success
-# Error code 1 = unsupported OS
-# Error code 2 = insufficient SIP value
-# Error code 3 = failed to rebuild KC
-# Error code 4 = failed to create snapshot
 
 # TODO: Add Ventura support
 mac_version = str(platform.mac_ver()[0].split('.')[0])
 if mac_version < '12':
     logging.error(f"macOS version {mac_version} is not supported!")
-    sys.exit(1)
+    sys.exit()
 elif mac_version == '12':
     logging.info(f"macOS Monterey detected! Proceeding...")
 elif mac_version == '13':
     logging.error("macOS Ventura is unsupported as of now.")
-    sys.exit(1)
+    sys.exit()
 else:
     logging.error(f"Unknown macOS version ({mac_version}) detected!")
-    sys.exit(1)
+    sys.exit()
 
 # TODO: check for files in subdirs of the script
 if os.path.exists("AMDRadeonX5000HWLibs.kext") and os.path.exists("AMDRadeonX6000Framebuffer.kext"):
@@ -44,7 +36,7 @@ else:
     logging.error("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory!")
     logging.error("Because of copyright limitations, these files cannot be shared publicly on the repository.")
     logging.error("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
-    sys.exit(-1)
+    sys.exit()
 
 # TODO: Improve writing
 # Checking SIP status
@@ -52,11 +44,11 @@ if not (py_sip_xnu.SipXnu().get_sip_status().can_edit_root and py_sip_xnu.SipXnu
     logging.error("Your SIP value is not sufficiently disabled! It needs to be at least 0x803.")
     logging.error("That means csr-active-config has to be set to at least 03080000.")
     logging.error("If this has already been done, you might also need to reset NVRAM.")
-    sys.exit(2)
+    sys.exit()
 
 choice = input("The script is ready to start. Press Y if you're sure you want to proceed.")
 if choice != "Y":
-    sys.exit(0)
+    sys.exit()
 
 # Get the root volume
 root_partition_info = plistlib.loads(subprocess.run("diskutil info -plist /".split(), stdout=subprocess.PIPE).stdout.decode().strip().encode())
@@ -70,7 +62,7 @@ if result.returncode != 0:
     print(f"Error code: {result.returncode}")
     print(result.stdout.decode())
     print("")
-    sys.exit(3)
+    sys.exit()
 
 # rm -rf X5000HWLibs & X6000FB
 subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -99,7 +91,7 @@ if result.returncode != 0:
     print(f"Error code: {result.returncode}")
     print(result.stdout.decode())
     print("")
-    sys.exit(3)
+    sys.exit()
 
 # Create system volume snapshot
 result = subprocess.run(f"sudo bless --folder /System/Volumes/Update/mnt1/System/Library/CoreServices --bootefi --create-snapshot", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -109,7 +101,7 @@ if result.returncode != 0:
     print(f"Error code: {result.returncode}")
     print(result.stdout.decode())
     print("")
-    sys.exit(4)
+    sys.exit()
 
 logging.info("Successfully replaced the required kexts!")
 sys.exit(0)
