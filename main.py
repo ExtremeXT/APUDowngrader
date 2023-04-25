@@ -56,13 +56,15 @@ root_mount_path = root_partition_info["DeviceIdentifier"]
 root_mount_path = root_mount_path[:-2] if root_mount_path.count("s") > 1 else root_mount_path
 
 # Mount the root volume
-result = subprocess.call(f'/sbin/mount_apfs -R /dev/{root_mount_path} /System/Volumes/Update/mnt1')
+result = subprocess.run(f'/sbin/mount_apfs -R /dev/{root_mount_path} /System/Volumes/Update/mnt1')
 if result.returncode != 0:
     logging.error("Failed to mount root volume!")
     print(f"Error code: {result.returncode}")
     print(result.stdout.decode())
     print("")
     sys.exit()
+
+# TODO: Make a function which does the subprocess calls
 
 # rm -rf X5000HWLibs & X6000FB
 subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
