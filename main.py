@@ -17,13 +17,13 @@ if os.path.exists("AMDRadeonX5000HWLibs.kext") and os.path.exists("AMDRadeonX600
     X50000HWLibsPath = "AMDRadeonX5000HWLibs.kext"
     X6000FramebufferPath = "AMDRadeonX6000Framebuffer.kext"
     
-mac_version = platform.mac_ver()[0].split('.')[0]
-if mac_version < 12:
+mac_version = str(platform.mac_ver()[0].split('.')[0])
+if mac_version < '12':
     print(f"macOS version {mac_version} is not supported!")
     sys.exit(1)
-elif mac_version == 12:
+elif mac_version == '12':
     print(f"macOS Monterey detected! Proceeding...")
-elif mac_version == 13:
+elif mac_version == '13':
     print("macOS Ventura is unsupported as of now.")
     sys.exit(1)
 else:
