@@ -1,15 +1,22 @@
 import platform
 import sys
-import py_sip_xnu
 import subprocess
 import plistlib
 import os
+import logging
+
+try:
+    import py_sip_xnu
+except:
+    logging.error("Could not import py_sip_xnu! Please run pip3 install py_sip_xnu.")
+    sys.exit(-1)
 
 # Thanks to OCLP for some of the code
 # https://github.com/dortania/OpenCore-Legacy-Patcher/blob/main/resources/sys_patch/sys_patch.py
 
 # TODO: Tidy up the error codes
 # Error code -1 = files not detected
+# Error code 0 = success
 # Error code 1 = unsupported OS
 # Error code 2 = insufficient SIP value
 # Error code 3 = failed to rebuild KC
@@ -20,31 +27,31 @@ if os.path.exists("AMDRadeonX5000HWLibs.kext") and os.path.exists("AMDRadeonX600
     X50000HWLibsPath = "AMDRadeonX5000HWLibs.kext"
     X6000FramebufferPath = "AMDRadeonX6000Framebuffer.kext"
 else:
-    print("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory!")
-    print("Because of copyright limitations, these files cannot be shared publicly on the repository.")
-    print("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
+    logging.error("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory!")
+    logging.error("Because of copyright limitations, these files cannot be shared publicly on the repository.")
+    logging.error("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
     sys.exit(-1)
 
 # TODO: Add Ventura support
 mac_version = str(platform.mac_ver()[0].split('.')[0])
 if mac_version < '12':
-    print(f"macOS version {mac_version} is not supported!")
+    logging.error(f"macOS version {mac_version} is not supported!")
     sys.exit(1)
 elif mac_version == '12':
-    print(f"macOS Monterey detected! Proceeding...")
+    logging.info(f"macOS Monterey detected! Proceeding...")
 elif mac_version == '13':
-    print("macOS Ventura is unsupported as of now.")
+    logging.error("macOS Ventura is unsupported as of now.")
     sys.exit(1)
 else:
-    print(f"Unknown macOS version ({mac_version}) detected!")
+    logging.error(f"Unknown macOS version ({mac_version}) detected!")
     sys.exit(1)
 
 # TODO: Improve writing
 # Checking SIP status
 if not (py_sip_xnu.SipXnu().get_sip_status().can_edit_root and py_sip_xnu.SipXnu().get_sip_status().can_load_arbitrary_kexts):
-    print("Your SIP value is not sufficiently disabled! It needs to be at least 0x803.")
-    print("That means csr-active-config has to be set to at least 03080000.")
-    print("If this has already been done, you might also need to reset NVRAM.")
+    logging.error("Your SIP value is not sufficiently disabled! It needs to be at least 0x803.")
+    logging.error("That means csr-active-config has to be set to at least 03080000.")
+    logging.error("If this has already been done, you might also need to reset NVRAM.")
     sys.exit(2)
 
 choice = input("The script is ready to start. Press Y if you're sure you want to proceed.")
@@ -82,8 +89,8 @@ result = subprocess.run(f"sudo kmutil install --volume-root /System/Volumes/Upda
 # - will return 31 on 'No binaries or codeless kexts were provided'
 # - will return -10 if the volume is missing (ie. unmounted by another process)
 if result.returncode != 0:
-    print("Failed to rebuild KC!")
-    print(f"Error code: {result.returncode}")
+    logging.error("Failed to rebuild KC!")
+    logging.error(f"Error code: {result.returncode}")
     print(result.stdout.decode())
     print("")
     sys.exit(3)
@@ -92,11 +99,11 @@ if result.returncode != 0:
 result = subprocess.run(f"sudo bless --folder /System/Volumes/Update/mnt1/System/Library/CoreServices --bootefi --create-snapshot", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 if result.returncode != 0:
-    print("Failed to create system volume snapshot!!")
-    print(f"Error code: {result.returncode}")
+    logging.error("Failed to create system volume snapshot!!")
+    logging.error(f"Error code: {result.returncode}")
     print(result.stdout.decode())
     print("")
     sys.exit(4)
 
-print("Successfully replaced the required kexts!")
+logging.info("Successfully replaced the required kexts!")
 sys.exit(0)
