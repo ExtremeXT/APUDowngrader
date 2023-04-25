@@ -45,7 +45,7 @@ else:
     logging.error("Because of copyright limitations, these files cannot be shared publicly on the repository.")
     logging.error("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
     sys.exit(-1)
-    
+
 # TODO: Improve writing
 # Checking SIP status
 if not (py_sip_xnu.SipXnu().get_sip_status().can_edit_root and py_sip_xnu.SipXnu().get_sip_status().can_load_arbitrary_kexts):
@@ -64,7 +64,13 @@ root_mount_path = root_partition_info["DeviceIdentifier"]
 root_mount_path = root_mount_path[:-2] if root_mount_path.count("s") > 1 else root_mount_path
 
 # Mount the root volume
-subprocess.call(f'/sbin/mount_apfs -R /dev/{root_mount_path} /System/Volumes/Update/mnt1')
+result = subprocess.call(f'/sbin/mount_apfs -R /dev/{root_mount_path} /System/Volumes/Update/mnt1')
+if result.returncode != 0:
+    logging.error("Failed to mount root volume!")
+    print(f"Error code: {result.returncode}")
+    print(result.stdout.decode())
+    print("")
+    sys.exit(3)
 
 # rm -rf X5000HWLibs & X6000FB
 subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -90,7 +96,7 @@ result = subprocess.run(f"sudo kmutil install --volume-root /System/Volumes/Upda
 # - will return -10 if the volume is missing (ie. unmounted by another process)
 if result.returncode != 0:
     logging.error("Failed to rebuild KC!")
-    logging.error(f"Error code: {result.returncode}")
+    print(f"Error code: {result.returncode}")
     print(result.stdout.decode())
     print("")
     sys.exit(3)
@@ -100,7 +106,7 @@ result = subprocess.run(f"sudo bless --folder /System/Volumes/Update/mnt1/System
 
 if result.returncode != 0:
     logging.error("Failed to create system volume snapshot!!")
-    logging.error(f"Error code: {result.returncode}")
+    print(f"Error code: {result.returncode}")
     print(result.stdout.decode())
     print("")
     sys.exit(4)
