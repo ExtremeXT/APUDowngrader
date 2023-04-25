@@ -8,14 +8,20 @@ import os
 # Thanks to OCLP for some of the code
 # https://github.com/dortania/OpenCore-Legacy-Patcher/blob/main/resources/sys_patch/sys_patch.py
 
+# Error code -1 = files not detected
 # Error code 1 = unsupported OS
 # Error code 2 = insufficient SIP value
-# Error code 3 = Failed to rebuild KC
-# Error code 4 = Failed to create snapshot
+# Error code 3 = failed to rebuild KC
+# Error code 4 = failed to create snapshot
 
 if os.path.exists("AMDRadeonX5000HWLibs.kext") and os.path.exists("AMDRadeonX6000Framebuffer.kext"):
     X50000HWLibsPath = "AMDRadeonX5000HWLibs.kext"
     X6000FramebufferPath = "AMDRadeonX6000Framebuffer.kext"
+else:
+    print("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory!")
+    print("Because of copyright limitations, these files cannot be shared publicly on the repository.")
+    print("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
+    sys.exit(-1)
     
 mac_version = str(platform.mac_ver()[0].split('.')[0])
 if mac_version < '12':
