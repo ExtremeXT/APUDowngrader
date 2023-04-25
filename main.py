@@ -56,10 +56,9 @@ root_mount_path = root_partition_info["DeviceIdentifier"]
 root_mount_path = root_mount_path[:-2] if root_mount_path.count("s") > 1 else root_mount_path
 
 # Mount the root volume
-result = subprocess.call(['/sbin/mount_apfs', f'-R /dev/{root_mount_path} /System/Volumes/Update/mnt1'], shell=True)
+result = subprocess.run(['/sbin/mount_apfs', '-R', f'/dev/{root_mount_path} /System/Volumes/Update/mnt1'], stdout=subprocess.PIPE)
 if result.returncode != 0:
     logging.error("Failed to mount root volume!")
-    print(f"Error code: {result.returncode}")
     print(result.stdout.decode())
     print("")
     sys.exit()
