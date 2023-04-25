@@ -22,16 +22,6 @@ except:
 # Error code 3 = failed to rebuild KC
 # Error code 4 = failed to create snapshot
 
-# TODO: check for files in subdirs of the script
-if os.path.exists("AMDRadeonX5000HWLibs.kext") and os.path.exists("AMDRadeonX6000Framebuffer.kext"):
-    X50000HWLibsPath = "AMDRadeonX5000HWLibs.kext"
-    X6000FramebufferPath = "AMDRadeonX6000Framebuffer.kext"
-else:
-    logging.error("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory!")
-    logging.error("Because of copyright limitations, these files cannot be shared publicly on the repository.")
-    logging.error("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
-    sys.exit(-1)
-
 # TODO: Add Ventura support
 mac_version = str(platform.mac_ver()[0].split('.')[0])
 if mac_version < '12':
@@ -46,6 +36,16 @@ else:
     logging.error(f"Unknown macOS version ({mac_version}) detected!")
     sys.exit(1)
 
+# TODO: check for files in subdirs of the script
+if os.path.exists("AMDRadeonX5000HWLibs.kext") and os.path.exists("AMDRadeonX6000Framebuffer.kext"):
+    X50000HWLibsPath = "AMDRadeonX5000HWLibs.kext"
+    X6000FramebufferPath = "AMDRadeonX6000Framebuffer.kext"
+else:
+    logging.error("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory!")
+    logging.error("Because of copyright limitations, these files cannot be shared publicly on the repository.")
+    logging.error("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
+    sys.exit(-1)
+    
 # TODO: Improve writing
 # Checking SIP status
 if not (py_sip_xnu.SipXnu().get_sip_status().can_edit_root and py_sip_xnu.SipXnu().get_sip_status().can_load_arbitrary_kexts):
