@@ -8,12 +8,14 @@ import os
 # Thanks to OCLP for some of the code
 # https://github.com/dortania/OpenCore-Legacy-Patcher/blob/main/resources/sys_patch/sys_patch.py
 
+# TODO: Tidy up the error codes
 # Error code -1 = files not detected
 # Error code 1 = unsupported OS
 # Error code 2 = insufficient SIP value
 # Error code 3 = failed to rebuild KC
 # Error code 4 = failed to create snapshot
 
+# TODO: check for files in subdirs of the script
 if os.path.exists("AMDRadeonX5000HWLibs.kext") and os.path.exists("AMDRadeonX6000Framebuffer.kext"):
     X50000HWLibsPath = "AMDRadeonX5000HWLibs.kext"
     X6000FramebufferPath = "AMDRadeonX6000Framebuffer.kext"
@@ -22,7 +24,8 @@ else:
     print("Because of copyright limitations, these files cannot be shared publicly on the repository.")
     print("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
     sys.exit(-1)
-    
+
+# TODO: Add Ventura support
 mac_version = str(platform.mac_ver()[0].split('.')[0])
 if mac_version < '12':
     print(f"macOS version {mac_version} is not supported!")
@@ -36,6 +39,7 @@ else:
     print(f"Unknown macOS version ({mac_version}) detected!")
     sys.exit(1)
 
+# TODO: Improve writing
 # Checking SIP status
 if not (py_sip_xnu.SipXnu().get_sip_status().can_edit_root and py_sip_xnu.SipXnu().get_sip_status().can_load_arbitrary_kexts):
     print("Your SIP value is not sufficiently disabled! It needs to be at least 0x803.")
