@@ -41,8 +41,14 @@ if os.path.exists(X50000HWLibsPath) and os.path.exists(X6000FramebufferPath):
     pass
 else:
     print("No Kexts found in script directory! Searching subdirectories...")
-    X50000HWLibsPath = kext_dir + "/" + glob.glob("*/AMDRadeonX5000HWLibs.kext")[0]
-    X6000FramebufferPath = kext_dir + "/" + glob.glob("*/AMDRadeonX6000Framebuffer.kext")[0]
+    try:
+        X50000HWLibsPath = kext_dir + "/" + glob.glob("*/AMDRadeonX5000HWLibs.kext")[0]
+        X6000FramebufferPath = kext_dir + "/" + glob.glob("*/AMDRadeonX6000Framebuffer.kext")[0]
+    except:
+        print("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory or any subdirectories!")
+        print("Because of copyright limitations, these files cannot be shared publicly on the repository.")
+        print("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
+        sys.exit()
 
     if os.path.exists(X50000HWLibsPath) and os.path.exists(X6000FramebufferPath):
         pass
