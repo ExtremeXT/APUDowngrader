@@ -84,6 +84,7 @@ if result.returncode != 0:
 # rm -rf X5000HWLibs & X6000FB
 subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+print("Kexts successfully deleted!")
 
 # cp -R X5000HWLibs & X6000FB
 result1 = subprocess.run(f"sudo cp -R {X50000HWLibsPath} /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -97,6 +98,8 @@ if result1.returncode != 0 or result2.returncode != 0:
     print("")
     sys.exit()
 
+print("Kexts successfully replaced!")
+
 # Fix permissions
 subprocess.run("sudo chmod -Rf 755 /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 subprocess.run("sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -104,8 +107,10 @@ subprocess.run("sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Lib
 subprocess.run("sudo chmod -Rf 755 /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 subprocess.run("sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
+print("Kext permissions successfully fixed!")
+
 # Rebuild KC
-result = subprocess.run(f"sudo kmutil install --volume-root /System/Volumes/Update/mnt1".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result = subprocess.run(f"sudo kmutil install --volume-root /System/Volumes/Update/mnt1 --update-all --variant-suffix release".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 if result.returncode != 0:
     print("Failed to rebuild KC!")
@@ -113,6 +118,7 @@ if result.returncode != 0:
     print("")
     sys.exit()
 
+print ("Successfully rebuilt KC!")
 # Create system volume snapshot
 result = subprocess.run(f"sudo bless --folder /System/Volumes/Update/mnt1/System/Library/CoreServices --bootefi --create-snapshot".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
@@ -121,6 +127,6 @@ if result.returncode != 0:
     print(result.stdout.decode())
     print("")
     sys.exit()
-
+print("Successfully created a new APFS volume snapshot!")
 print("Successfully replaced the required kexts!")
 sys.exit(0)
