@@ -3,12 +3,11 @@ import sys
 import subprocess
 import plistlib
 import os
-import logging
 
 try:
     import py_sip_xnu
 except:
-    logging.error("Could not import py_sip_xnu! Please run pip3 install py_sip_xnu.")
+    print("Could not import py_sip_xnu! Please run pip3 install py_sip_xnu.")
     sys.exit()
 
 # Thanks to OCLP for some of the code
@@ -17,15 +16,15 @@ except:
 # TODO: Add Ventura support
 mac_version = str(platform.mac_ver()[0].split('.')[0])
 if mac_version < '12':
-    logging.error(f"macOS version {mac_version} is not supported!")
+    print(f"macOS version {mac_version} is not supported!")
     sys.exit()
 elif mac_version == '12':
-    logging.info(f"macOS Monterey detected! Proceeding...")
+    print(f"macOS Monterey detected! Proceeding...")
 elif mac_version == '13':
-    logging.error("macOS Ventura is unsupported as of now.")
+    print("macOS Ventura is unsupported as of now.")
     sys.exit()
 else:
-    logging.error(f"Unknown macOS version ({mac_version}) detected!")
+    print(f"Unknown macOS version ({mac_version}) detected!")
     sys.exit()
 
 # TODO: check for files in subdirs of the script
@@ -33,17 +32,17 @@ if os.path.exists("AMDRadeonX5000HWLibs.kext") and os.path.exists("AMDRadeonX600
     X50000HWLibsPath = "AMDRadeonX5000HWLibs.kext"
     X6000FramebufferPath = "AMDRadeonX6000Framebuffer.kext"
 else:
-    logging.error("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory!")
-    logging.error("Because of copyright limitations, these files cannot be shared publicly on the repository.")
-    logging.error("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
+    print("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory!")
+    print("Because of copyright limitations, these files cannot be shared publicly on the repository.")
+    print("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
     sys.exit()
 
 # TODO: Improve writing
 # Checking SIP status
 if not (py_sip_xnu.SipXnu().get_sip_status().can_edit_root and py_sip_xnu.SipXnu().get_sip_status().can_load_arbitrary_kexts):
-    logging.error("Your SIP value is not sufficiently disabled! It needs to be at least 0x803.")
-    logging.error("That means csr-active-config has to be set to at least 03080000.")
-    logging.error("If this has already been done, you might also need to reset NVRAM.")
+    print("Your SIP value is not sufficiently disabled! It needs to be at least 0x803.")
+    print("That means csr-active-config has to be set to at least 03080000.")
+    print("If this has already been done, you might also need to reset NVRAM.")
     sys.exit()
 
 choice = input("The script is ready to start. Press Y if you're sure you want to proceed.")
@@ -58,7 +57,7 @@ root_mount_path = root_mount_path[:-2] if root_mount_path.count("s") > 1 else ro
 # Mount the root volume
 result = subprocess.run(['/sbin/mount_apfs', '-R', f'/dev/{root_mount_path}', '/System/Volumes/Update/mnt1'], stdout=subprocess.PIPE)
 if result.returncode != 0:
-    logging.error("Failed to mount root volume!")
+    print("Failed to mount root volume!")
     print(result.stdout.decode())
     print("")
     sys.exit()
@@ -88,7 +87,7 @@ result = subprocess.run(f"sudo kmutil install --volume-root /System/Volumes/Upda
 # - will return 31 on 'No binaries or codeless kexts were provided'
 # - will return -10 if the volume is missing (ie. unmounted by another process)
 if result.returncode != 0:
-    logging.error("Failed to rebuild KC!")
+    print("Failed to rebuild KC!")
     print(f"Error code: {result.returncode}")
     print(result.stdout.decode())
     print("")
@@ -98,11 +97,11 @@ if result.returncode != 0:
 result = subprocess.run(f"sudo bless --folder /System/Volumes/Update/mnt1/System/Library/CoreServices --bootefi --create-snapshot", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 if result.returncode != 0:
-    logging.error("Failed to create system volume snapshot!!")
+    print("Failed to create system volume snapshot!!")
     print(f"Error code: {result.returncode}")
     print(result.stdout.decode())
     print("")
     sys.exit()
 
-logging.info("Successfully replaced the required kexts!")
+print("Successfully replaced the required kexts!")
 sys.exit(0)
