@@ -36,8 +36,8 @@ if os.path.exists(X50000HWLibsPath) and os.path.exists(X6000FramebufferPath):
     pass
 else:
     print("No Kexts found in script directory! Searching subdirectories...")
-    X50000HWLibsPath = kext_dir + "/" + glob.glob("*/AMDRadeonX5000HWLibs.kext")
-    X6000FramebufferPath = kext_dir + "/" + glob.glob("*/AMDRadeonX6000Framebuffer.kext")
+    X50000HWLibsPath = kext_dir + "/" + glob.glob("*/AMDRadeonX5000HWLibs.kext")[0]
+    X6000FramebufferPath = kext_dir + "/" + glob.glob("*/AMDRadeonX6000Framebuffer.kext")[0]
 
     if os.path.exists(X50000HWLibsPath) and os.path.exists(X6000FramebufferPath):
         pass
