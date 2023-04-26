@@ -9,13 +9,12 @@ try:
     import py_sip_xnu
 except:
     print("Could not import py_sip_xnu! Installing py_sip_xnu...")
-    subprocess.run(f"python3 -m pip install py_sip_xnu".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    subprocess.run("python3 -m pip install py_sip_xnu".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     try:
         import py_sip_xnu
     except:
         print("Failed to install py_sip_xnu! Please install it manually.")
         sys.exit()
-
 
 # Thanks to OCLP for some of the code
 # https://github.com/dortania/OpenCore-Legacy-Patcher/blob/main/resources/sys_patch/sys_patch.py
@@ -26,7 +25,7 @@ if mac_version < '12':
     print(f"macOS version {mac_version} is not supported!")
     sys.exit()
 elif mac_version == '12':
-    print(f"macOS Monterey detected! Proceeding...")
+    print("macOS Monterey detected! Proceeding...")
 elif mac_version == '13':
     print("macOS Ventura is unsupported as of now.")
     sys.exit()
@@ -131,17 +130,17 @@ subprocess.run("sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Lib
 print("Kext permissions successfully fixed!")
 
 # Rebuild KC
-result = subprocess.run(f"sudo kmutil install --volume-root /System/Volumes/Update/mnt1 --update-all --variant-suffix release".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result = subprocess.run("sudo kmutil install --volume-root /System/Volumes/Update/mnt1 --update-all --variant-suffix release".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 if result.returncode != 0:
     print("Failed to rebuild KC!")
     print(result.stdout.decode())
     print("")
     sys.exit()
-print ("Successfully rebuilt KC!")
+print("Successfully rebuilt KC!")
 
 # Create system volume snapshot
-result = subprocess.run(f"sudo bless --folder /System/Volumes/Update/mnt1/System/Library/CoreServices --bootefi --create-snapshot".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result = subprocess.run("sudo bless --folder /System/Volumes/Update/mnt1/System/Library/CoreServices --bootefi --create-snapshot".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 if result.returncode != 0:
     print("Failed to create system volume snapshot!!")
