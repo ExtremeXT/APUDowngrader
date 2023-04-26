@@ -14,6 +14,7 @@ except:
         import py_sip_xnu
     except:
         print("Failed to install py_sip_xnu! Please install it manually.")
+        sys.exit()
 
 
 # Thanks to OCLP for some of the code
