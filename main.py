@@ -9,7 +9,11 @@ try:
     import py_sip_xnu
 except:
     print("Could not import py_sip_xnu! Installing py_sip_xnu...")
-    subprocess.run(f"python3 -m pip install py_sip_xnu".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    subprocess.run(
+        f"python3 -m pip install py_sip_xnu".split(),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
     try:
         import py_sip_xnu
     except:
@@ -21,13 +25,13 @@ except:
 # https://github.com/dortania/OpenCore-Legacy-Patcher/blob/main/resources/sys_patch/sys_patch.py
 
 # TODO: Add Ventura support
-mac_version = str(platform.mac_ver()[0].split('.')[0])
-if mac_version < '12':
+mac_version = str(platform.mac_ver()[0].split(".")[0])
+if mac_version < "12":
     print(f"macOS version {mac_version} is not supported!")
     sys.exit()
-elif mac_version == '12':
+elif mac_version == "12":
     print(f"macOS Monterey detected! Proceeding...")
-elif mac_version == '13':
+elif mac_version == "13":
     print("macOS Ventura is unsupported as of now.")
     sys.exit()
 else:
@@ -44,34 +48,60 @@ else:
     print("No Kexts found in script directory! Searching subdirectories...")
     try:
         X50000HWLibsPath = kext_dir + "/" + glob.glob("*/AMDRadeonX5000HWLibs.kext")[0]
-        X6000FramebufferPath = kext_dir + "/" + glob.glob("*/AMDRadeonX6000Framebuffer.kext")[0]
+        X6000FramebufferPath = (
+            kext_dir + "/" + glob.glob("*/AMDRadeonX6000Framebuffer.kext")[0]
+        )
     except:
-        print("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory or any subdirectories!")
-        print("Because of copyright limitations, these files cannot be shared publicly on the repository.")
-        print("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
+        print(
+            "AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory or any subdirectories!"
+        )
+        print(
+            "Because of copyright limitations, these files cannot be shared publicly on the repository."
+        )
+        print(
+            "This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else."
+        )
         sys.exit()
 
     if os.path.exists(X50000HWLibsPath) and os.path.exists(X6000FramebufferPath):
         pass
     else:
-        print("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory or any subdirectories!")
-        print("Because of copyright limitations, these files cannot be shared publicly on the repository.")
-        print("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
+        print(
+            "AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory or any subdirectories!"
+        )
+        print(
+            "Because of copyright limitations, these files cannot be shared publicly on the repository."
+        )
+        print(
+            "This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else."
+        )
         sys.exit()
 
 print(f"AMDRadeonX5000HWLibs found in: {X50000HWLibsPath}")
 print(f"AMDRadeonX6000Framebuffer found in: {X6000FramebufferPath}")
 
 # Checking Secure Boot status
-if subprocess.run("nvram 94b73556-2197-4702-82a8-3e1337dafbfb:AppleSecureBootPolicy".split(), stdout=subprocess.PIPE).stdout.decode().split("%")[1].strip() == '00':
+if (
+    subprocess.run(
+        "nvram 94b73556-2197-4702-82a8-3e1337dafbfb:AppleSecureBootPolicy".split(),
+        stdout=subprocess.PIPE,
+    )
+    .stdout.decode()
+    .split("%")[1]
+    .strip()
+    == "00"
+):
     print("Apple Secure Boot is Disabled! Proceeding...")
 else:
     print("Apple Secure Boot is enabled! It has to be turned off in order to continue.")
     print("Please set SecureBootModel to Disabled.")
-    sys.exit() 
+    sys.exit()
 
 # Checking SIP status
-if (py_sip_xnu.SipXnu().get_sip_status().can_edit_root and py_sip_xnu.SipXnu().get_sip_status().can_load_arbitrary_kexts):
+if (
+    py_sip_xnu.SipXnu().get_sip_status().can_edit_root
+    and py_sip_xnu.SipXnu().get_sip_status().can_load_arbitrary_kexts
+):
     print("Compatible SIP value detected! Proceeding...")
 else:
     print("Your SIP value is too low! It needs to be at least 0x803.")
@@ -79,7 +109,9 @@ else:
     print("If this has already been done, you might also need to reset NVRAM.")
     sys.exit()
 
-choice = input("The script is ready to start. Type \"I am sure that I want to downgrade my root volume\" if you're sure you want to proceed: ")
+choice = input(
+    'The script is ready to start. Type "I am sure that I want to downgrade my root volume" if you\'re sure you want to proceed: '
+)
 if choice == "I am sure that I want to downgrade my root volume":
     print("Proceeding with replacing kexts.")
 else:
@@ -87,7 +119,12 @@ else:
     sys.exit()
 
 # Get the root volume
-root_partition = plistlib.loads(subprocess.run("diskutil info -plist /".split(), stdout=subprocess.PIPE).stdout.decode().strip().encode())["DeviceIdentifier"]
+root_partition = plistlib.loads(
+    subprocess.run("diskutil info -plist /".split(), stdout=subprocess.PIPE)
+    .stdout.decode()
+    .strip()
+    .encode()
+)["DeviceIdentifier"]
 if root_partition.count("s") > 1:
     root_partition = root_partition[:-2]
 
@@ -95,7 +132,11 @@ print(f"Root partition found: {root_partition}")
 
 print("Please enter your password when you are asked to.")
 # Mount the root volume
-result = subprocess.run(f"sudo /sbin/mount_apfs -R /dev/{root_partition} /System/Volumes/Update/mnt1".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result = subprocess.run(
+    f"sudo /sbin/mount_apfs -R /dev/{root_partition} /System/Volumes/Update/mnt1".split(),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
 if result.returncode != 0:
     print("Failed to mount root volume!")
     print(result.stdout.decode())
@@ -105,13 +146,29 @@ if result.returncode != 0:
 print("Root volume successfully mounted!")
 
 # rm -rf X5000HWLibs & X6000FB
-subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+subprocess.run(
+    "sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
+subprocess.run(
+    "sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
 print("Kexts successfully deleted!")
 
 # cp -R X5000HWLibs & X6000FB
-result1 = subprocess.run(f"sudo cp -R {X50000HWLibsPath} /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-result2 = subprocess.run(f"sudo cp -R {X6000FramebufferPath} /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result1 = subprocess.run(
+    f"sudo cp -R {X50000HWLibsPath} /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
+result2 = subprocess.run(
+    f"sudo cp -R {X6000FramebufferPath} /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
 
 if result1.returncode != 0 or result2.returncode != 0:
     print("Failed to copy kexts!!")
@@ -123,25 +180,49 @@ if result1.returncode != 0 or result2.returncode != 0:
 print("Kexts successfully replaced!")
 
 # Fix permissions
-subprocess.run("sudo chmod -Rf 755 /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-subprocess.run("sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+subprocess.run(
+    "sudo chmod -Rf 755 /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
+subprocess.run(
+    "sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
 
-subprocess.run("sudo chmod -Rf 755 /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-subprocess.run("sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+subprocess.run(
+    "sudo chmod -Rf 755 /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
+subprocess.run(
+    "sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
 print("Kext permissions successfully fixed!")
 
 # Rebuild KC
-result = subprocess.run(f"sudo kmutil install --volume-root /System/Volumes/Update/mnt1 --update-all --variant-suffix release".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result = subprocess.run(
+    f"sudo kmutil install --volume-root /System/Volumes/Update/mnt1 --update-all --variant-suffix release".split(),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
 
 if result.returncode != 0:
     print("Failed to rebuild KC!")
     print(result.stdout.decode())
     print("")
     sys.exit()
-print ("Successfully rebuilt KC!")
+print("Successfully rebuilt KC!")
 
 # Create system volume snapshot
-result = subprocess.run(f"sudo bless --folder /System/Volumes/Update/mnt1/System/Library/CoreServices --bootefi --create-snapshot".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result = subprocess.run(
+    f"sudo bless --folder /System/Volumes/Update/mnt1/System/Library/CoreServices --bootefi --create-snapshot".split(),
+    stdout=subprocess.PIPE,
+    stderr=subprocess.STDOUT,
+)
 
 if result.returncode != 0:
     print("Failed to create system volume snapshot!!")
