@@ -56,7 +56,7 @@ print(f"AMDRadeonX5000HWLibs found in: {X50000HWLibsPath}")
 print(f"AMDRadeonX6000Framebuffer found in: {X6000FramebufferPath}")
 
 # Checking Secure Boot status
-if subprocess.run("nvram 94b73556-2197-4702-82a8-3e1337dafbfb:AppleSecureBootPolicy".split(), stdout=subprocess.PIPE).stdout.decode().split("%")[1].strip() == 00:
+if subprocess.run("nvram 94b73556-2197-4702-82a8-3e1337dafbfb:AppleSecureBootPolicy".split(), stdout=subprocess.PIPE).stdout.decode().split("%")[1].strip() == '00':
     print("Apple Secure Boot is Disabled! Proceeding...")
 else:
     print("Apple Secure Boot is enabled! It has to be turned off in order to continue.")
