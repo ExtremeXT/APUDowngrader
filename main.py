@@ -8,8 +8,13 @@ import glob
 try:
     import py_sip_xnu
 except:
-    print("Could not import py_sip_xnu! Please run python -m pip install py_sip_xnu.")
-    sys.exit()
+    print("Could not import py_sip_xnu! Installing py_sip_xnu...")
+    subprocess.run(f"python3 -m pip install py_sip_xnu".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    try:
+        import py_sip_xnu
+    except:
+        print("Failed to install py_sip_xnu! Please install it manually.")
+
 
 # Thanks to OCLP for some of the code
 # https://github.com/dortania/OpenCore-Legacy-Patcher/blob/main/resources/sys_patch/sys_patch.py
@@ -50,9 +55,17 @@ else:
 print(f"AMDRadeonX5000HWLibs found in: {X50000HWLibsPath}")
 print(f"AMDRadeonX6000Framebuffer found in: {X6000FramebufferPath}")
 
+# Checking Secure Boot status
+if subprocess.run("nvram 94b73556-2197-4702-82a8-3e1337dafbfb:AppleSecureBootPolicy".split(), stdout=subprocess.PIPE).stdout.decode().split("%")[1].strip() == 00:
+    print("Apple Secure Boot is Disabled! Proceeding...")
+else:
+    print("Apple Secure Boot is enabled! It has to be turned off in order to continue.")
+    print("Please set SecureBootModel to Disabled.")
+    sys.exit() 
+
 # Checking SIP status
 if (py_sip_xnu.SipXnu().get_sip_status().can_edit_root and py_sip_xnu.SipXnu().get_sip_status().can_load_arbitrary_kexts):
-    print("Compatible SIP value detected!")
+    print("Compatible SIP value detected! Proceeding...")
 else:
     print("Your SIP value is too low! It needs to be at least 0x803.")
     print("That means csr-active-config has to be set to at least 03080000.")
@@ -73,6 +86,7 @@ if root_partition.count("s") > 1:
 
 print(f"Root partition found: {root_partition}")
 
+print("Please enter your password when you are asked to.")
 # Mount the root volume
 result = subprocess.run(f"sudo /sbin/mount_apfs -R /dev/{root_partition} /System/Volumes/Update/mnt1".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 if result.returncode != 0:
@@ -80,6 +94,8 @@ if result.returncode != 0:
     print(result.stdout.decode())
     print("")
     sys.exit()
+
+print("Root volume successfully mounted!")
 
 # rm -rf X5000HWLibs & X6000FB
 subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -97,7 +113,6 @@ if result1.returncode != 0 or result2.returncode != 0:
     print(result2.stdout.decode())
     print("")
     sys.exit()
-
 print("Kexts successfully replaced!")
 
 # Fix permissions
@@ -106,7 +121,6 @@ subprocess.run("sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Lib
 
 subprocess.run("sudo chmod -Rf 755 /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 subprocess.run("sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
 print("Kext permissions successfully fixed!")
 
 # Rebuild KC
@@ -117,8 +131,8 @@ if result.returncode != 0:
     print(result.stdout.decode())
     print("")
     sys.exit()
-
 print ("Successfully rebuilt KC!")
+
 # Create system volume snapshot
 result = subprocess.run(f"sudo bless --folder /System/Volumes/Update/mnt1/System/Library/CoreServices --bootefi --create-snapshot".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
@@ -128,5 +142,6 @@ if result.returncode != 0:
     print("")
     sys.exit()
 print("Successfully created a new APFS volume snapshot!")
+
 print("Successfully replaced the required kexts!")
 sys.exit(0)
