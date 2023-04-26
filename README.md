@@ -9,6 +9,9 @@ This will weaken macOS' security by a little bit. It will enable installing unsi
 You will also not be able to download any delta OTA updates, so when you want to update macOS, you will need to download the full 12GB update.
 It is up to each person to decide if this compromise is worth it.
 
+You will need to copy the 2 kexts from macOS Big Sur into any subdirectory of the script location, it will search for it.
+Because of copyright limitations with Apple, we are unable to just upload the kexts on this repository.
+
 # Credits
 
 Apple for macOS
