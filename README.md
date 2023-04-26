@@ -15,5 +15,7 @@ Because of copyright limitations with Apple, we are unable to just upload the ke
 # Credits
 
 Apple for macOS
+
 Visual and NyanCatTW1 for NootedRed
+
 Dortania for OpenCore Legacy Patcher

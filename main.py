@@ -118,7 +118,7 @@ if result1.returncode != 0 or result2.returncode != 0:
     print(result1.stdout.decode())
     print("----------------")
     print(result2.stdout.decode())
-    print("")
+    print("")   
     sys.exit()
 print("Kexts successfully replaced!")
 
