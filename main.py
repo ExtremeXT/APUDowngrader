@@ -3,11 +3,12 @@ import sys
 import subprocess
 import plistlib
 import os
+import glob
 
 try:
     import py_sip_xnu
 except:
-    print("Could not import py_sip_xnu! Please run pip3 install py_sip_xnu.")
+    print("Could not import py_sip_xnu! Please run python -m pip install py_sip_xnu.")
     sys.exit()
 
 # Thanks to OCLP for some of the code
@@ -27,17 +28,27 @@ else:
     print(f"Unknown macOS version ({mac_version}) detected!")
     sys.exit()
 
-# TODO: check for files in subdirs of the script
-if os.path.exists("AMDRadeonX5000HWLibs.kext") and os.path.exists("AMDRadeonX6000Framebuffer.kext"):
-    kext_path = sys.path[0]
-    print(f"Kexts found in dir: {kext_path}")
-    X50000HWLibsPath = "AMDRadeonX5000HWLibs.kext"
-    X6000FramebufferPath = "AMDRadeonX6000Framebuffer.kext"
+kext_dir = sys.path[0]
+X50000HWLibsPath = kext_dir + "/" + "AMDRadeonX5000HWLibs.kext"
+X6000FramebufferPath = kext_dir + "/" + "AMDRadeonX6000Framebuffer.kext"
+
+if os.path.exists(X50000HWLibsPath) and os.path.exists(X6000FramebufferPath):
+    pass
 else:
-    print("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory!")
-    print("Because of copyright limitations, these files cannot be shared publicly on the repository.")
-    print("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
-    sys.exit()
+    print("No Kexts found in script directory! Searching subdirectories...")
+    X50000HWLibsPath = kext_dir + "/" + glob.glob("*/AMDRadeonX5000HWLibs.kext")
+    X6000FramebufferPath = kext_dir + "/" + glob.glob("*/AMDRadeonX6000Framebuffer.kext")
+
+    if os.path.exists(X50000HWLibsPath) and os.path.exists(X6000FramebufferPath):
+        pass
+    else:
+        print("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory or any subdirectories!")
+        print("Because of copyright limitations, these files cannot be shared publicly on the repository.")
+        print("This means you need to find the means to get these files either by yourself from a Big Sur installation or downloaded from somewhere else.")
+        sys.exit()
+
+print(f"AMDRadeonX5000HWLibs found in: {X50000HWLibsPath}")
+print(f"AMDRadeonX6000Framebuffer found in: {X6000FramebufferPath}")
 
 # TODO: Improve writing
 # Checking SIP status
@@ -74,8 +85,16 @@ subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extension
 subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 # cp -R X5000HWLibs & X6000FB
-subprocess.run(f"sudo cp -R {X50000HWLibsPath} /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-subprocess.run(f"sudo cp -R {X6000FramebufferPath} /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result1 = subprocess.run(f"sudo cp -R {X50000HWLibsPath} /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result2 = subprocess.run(f"sudo cp -R {X6000FramebufferPath} /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+if result1.returncode != 0 or result2.returncode != 0:
+    print("Failed to copy kexts!!")
+    print(result1.stdout.decode())
+    print("----------------")
+    print(result2.stdout.decode())
+    print("")
+    sys.exit()
 
 # Fix permissions
 subprocess.run("sudo chmod -Rf 755 /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -87,10 +106,6 @@ subprocess.run("sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Lib
 # Rebuild KC
 result = subprocess.run(f"sudo kmutil install --volume-root /System/Volumes/Update/mnt1".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-# kmutil notes:
-# - will return 71 on failure to build KCs
-# - will return 31 on 'No binaries or codeless kexts were provided'
-# - will return -10 if the volume is missing (ie. unmounted by another process)
 if result.returncode != 0:
     print("Failed to rebuild KC!")
     print(result.stdout.decode())
