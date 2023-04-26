@@ -50,30 +50,31 @@ else:
 print(f"AMDRadeonX5000HWLibs found in: {X50000HWLibsPath}")
 print(f"AMDRadeonX6000Framebuffer found in: {X6000FramebufferPath}")
 
-# TODO: Improve writing
 # Checking SIP status
 if (py_sip_xnu.SipXnu().get_sip_status().can_edit_root and py_sip_xnu.SipXnu().get_sip_status().can_load_arbitrary_kexts):
-    print("Necessary SIP value detected!")
+    print("Compatible SIP value detected!")
 else:
-    print("Your SIP value is not sufficiently disabled! It needs to be at least 0x803.")
+    print("Your SIP value is too low! It needs to be at least 0x803.")
     print("That means csr-active-config has to be set to at least 03080000.")
     print("If this has already been done, you might also need to reset NVRAM.")
     sys.exit()
 
-choice = input("The script is ready to start. Press Y if you're sure you want to proceed.")
-if choice == "Y":
+choice = input("The script is ready to start. Type \"I am sure that I want to downgrade my root volume\" if you're sure you want to proceed: ")
+if choice == "I am sure that I want to downgrade my root volume":
     print("Proceeding with replacing kexts.")
 else:
+    print("Exiting...")
     sys.exit()
 
 # Get the root volume
-root_partition_info = plistlib.loads(subprocess.run("diskutil info -plist /".split(), stdout=subprocess.PIPE).stdout.decode().strip().encode())
-root_mount_path = root_partition_info["DeviceIdentifier"]
-root_mount_path = root_mount_path[:-2] if root_mount_path.count("s") > 1 else root_mount_path
-print(f"Root partition found: {root_mount_path}")
+root_partition = plistlib.loads(subprocess.run("diskutil info -plist /".split(), stdout=subprocess.PIPE).stdout.decode().strip().encode())["DeviceIdentifier"]
+if root_partition.count("s") > 1:
+    root_partition = root_partition[:-2]
+
+print(f"Root partition found: {root_partition}")
 
 # Mount the root volume
-result = subprocess.run(f"sudo /sbin/mount_apfs -R /dev/{root_mount_path} /System/Volumes/Update/mnt1".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result = subprocess.run(f"sudo /sbin/mount_apfs -R /dev/{root_partition} /System/Volumes/Update/mnt1".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 if result.returncode != 0:
     print("Failed to mount root volume!")
     print(result.stdout.decode())
