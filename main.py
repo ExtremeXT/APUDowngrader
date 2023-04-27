@@ -33,6 +33,9 @@ else:
     print(f"Unknown macOS version ({mac_version}) detected!")
     sys.exit()
 
+SLEX5000HWLibs = "/System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext"
+SLEX6000Framebuffer = "/System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext"
+
 kext_dir = sys.path[0]
 X50000HWLibsPath = kext_dir + "/" + "AMDRadeonX5000HWLibs.kext"
 X6000FramebufferPath = kext_dir + "/" + "AMDRadeonX6000Framebuffer.kext"
@@ -103,14 +106,21 @@ if result.returncode != 0:
 
 print("Root volume successfully mounted!")
 
+# Backing up original kexts
+if not os.path.exists(f"{kext_dir}/Backups"):
+    os.mkdir(f"{kext_dir}/Backups")
+
+subprocess.run(f"sudo cp -Rf {SLEX5000HWLibs} {kext_dir}/Backups/Original_AMDRadeonX5000HWLibs.kext")
+subprocess.run(f"sudo cp -Rf {SLEX5000HWLibs} {kext_dir}/Backups/Original_AMDRadeonX6000FrameBuffer.kext")
+
 # rm -rf X5000HWLibs & X6000FB
-subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-subprocess.run("sudo rm -rf /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+subprocess.run(f"sudo rm -rf {SLEX5000HWLibs}".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+subprocess.run(f"sudo rm -rf {SLEX6000Framebuffer}".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 print("Kexts successfully deleted!")
 
 # cp -R X5000HWLibs & X6000FB
-result1 = subprocess.run(f"sudo cp -R {X50000HWLibsPath} /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-result2 = subprocess.run(f"sudo cp -R {X6000FramebufferPath} /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result1 = subprocess.run(f"sudo cp -R {X50000HWLibsPath} {SLEX5000HWLibs}".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+result2 = subprocess.run(f"sudo cp -R {X6000FramebufferPath} {SLEX6000Framebuffer}".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 if result1.returncode != 0 or result2.returncode != 0:
     print("Failed to copy kexts!!")
@@ -122,11 +132,11 @@ if result1.returncode != 0 or result2.returncode != 0:
 print("Kexts successfully replaced!")
 
 # Fix permissions
-subprocess.run("sudo chmod -Rf 755 /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-subprocess.run("sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX5000HWServices.kext/Contents/PlugIns/AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+subprocess.run(f"sudo chmod -Rf 755 {X50000HWLibsPath}".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+subprocess.run(f"sudo chown -Rf root:wheel {X50000HWLibsPath}".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-subprocess.run("sudo chmod -Rf 755 /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-subprocess.run("sudo chown -Rf root:wheel /System/Volumes/Update/mnt1/System/Library/Extensions/AMDRadeonX6000Framebuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+subprocess.run(f"sudo chmod -Rf 755 {X6000FramebufferPath}".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+subprocess.run(f"sudo chown -Rf root:wheel {X6000FramebufferPath}".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 print("Kext permissions successfully fixed!")
 
 # Rebuild KC
