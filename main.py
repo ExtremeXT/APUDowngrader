@@ -110,8 +110,8 @@ print("Root volume successfully mounted!")
 if not os.path.exists(f"{kext_dir}/Backups"):
     os.mkdir(f"{kext_dir}/Backups")
 
-subprocess.run(f"sudo cp -Rf {SLEX5000HWLibs} {kext_dir}/Backups/Original_AMDRadeonX5000HWLibs.kext")
-subprocess.run(f"sudo cp -Rf {SLEX5000HWLibs} {kext_dir}/Backups/Original_AMDRadeonX6000FrameBuffer.kext")
+subprocess.run(f"sudo cp -Rf {SLEX5000HWLibs} {kext_dir}/Backups/Original_AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+subprocess.run(f"sudo cp -Rf {SLEX5000HWLibs} {kext_dir}/Backups/Original_AMDRadeonX6000FrameBuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 # rm -rf X5000HWLibs & X6000FB
 subprocess.run(f"sudo rm -rf {SLEX5000HWLibs}".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -160,7 +160,7 @@ if result.returncode != 0:
 print("Successfully created a new APFS volume snapshot!")
 
 # Unmount root drive
-result = subprocess.run(f"sudo diskutil {root_partition}")
+result = subprocess.run(f"sudo diskutil /dev/{root_partition}".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 if result.returncode != 0:
     print("Failed to create system volume snapshot!!")
     print(result.stdout.decode())
