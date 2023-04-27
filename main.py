@@ -149,5 +149,13 @@ if result.returncode != 0:
     sys.exit()
 print("Successfully created a new APFS volume snapshot!")
 
+# Unmount root drive
+result = subprocess.run(f"sudo diskutil {root_partition}")
+if result.returncode != 0:
+    print("Failed to create system volume snapshot!!")
+    print(result.stdout.decode())
+    print("")
+    sys.exit()
+
 print("Successfully replaced the required kexts!")
 sys.exit(0)
