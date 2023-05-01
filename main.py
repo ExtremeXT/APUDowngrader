@@ -8,7 +8,7 @@ import glob
 if platform.system() != "Darwin":
     print("This script is only meant to be run on macOS!")
     sys.exit()
-    
+
 try:
     import py_sip_xnu
 except:
@@ -49,8 +49,8 @@ if os.path.exists(X50000HWLibsPath) and os.path.exists(X6000FramebufferPath):
 else:
     print("No Kexts found in script directory! Searching subdirectories...")
     try:
-        X50000HWLibsPath = kext_dir + "/" + glob.glob("*/AMDRadeonX5000HWLibs.kext")[0]
-        X6000FramebufferPath = kext_dir + "/" + glob.glob("*/AMDRadeonX6000Framebuffer.kext")[0]
+        X50000HWLibsPath = kext_dir + "/" + glob.glob("**/AMDRadeonX5000HWLibs.kext")[0]
+        X6000FramebufferPath = kext_dir + "/" + glob.glob("**/AMDRadeonX6000Framebuffer.kext")[0]
     except:
         print("AMDRadeonX5000HWLibs.kext and/or AMDRadeonX6000Framebuffer.kext not found in the script directory or any subdirectories!")
         print("Because of copyright limitations, these files cannot be shared publicly on the repository.")
