@@ -4,6 +4,7 @@ import subprocess
 import plistlib
 import os
 import glob
+from datetime import datetime
 
 if platform.system() != "Darwin":
     print("This script is only meant to be run on macOS!")
@@ -126,8 +127,9 @@ print(Fore.GREEN + "Root volume successfully mounted!")
 if not os.path.exists(f"{kext_dir}/Backups"):
     os.mkdir(f"{kext_dir}/Backups")
 
-subprocess.run(f"sudo cp -Rf {SLEX5000HWLibs} {kext_dir}/Backups/Original_AMDRadeonX5000HWLibs.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-subprocess.run(f"sudo cp -Rf {SLEX5000HWLibs} {kext_dir}/Backups/Original_AMDRadeonX6000FrameBuffer.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+subprocess.run(f"sudo cp -Rf {SLEX5000HWLibs} {kext_dir}/Backups/Original_AMDRadeonX5000HWLibs_{date}.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+subprocess.run(f"sudo cp -Rf {SLEX5000HWLibs} {kext_dir}/Backups/Original_AMDRadeonX6000FrameBuffer_{date}.kext".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 print(Fore.GREEN + "Kexts successfully backed up!")
 
 # rm -rf X5000HWLibs & X6000FB
