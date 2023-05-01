@@ -160,12 +160,8 @@ if result.returncode != 0:
 print("Successfully created a new APFS volume snapshot!")
 
 # Unmount root drive
-result = subprocess.run(f"sudo diskutil /dev/{root_partition}".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-if result.returncode != 0:
-    print("Failed to create system volume snapshot!!")
-    print(result.stdout.decode())
-    print("")
-    sys.exit()
+# No big deal if this fails, it's just a cleanup step
+result = subprocess.run(f"sudo /sbin/umount /System/Volumes/Update/mnt1".split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 print("Successfully replaced the required kexts!")
 sys.exit(0)
