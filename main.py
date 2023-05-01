@@ -5,6 +5,10 @@ import plistlib
 import os
 import glob
 
+if platform.system() != "Darwin":
+    print("This script is only meant to be run on macOS!")
+    sys.exit()
+    
 try:
     import py_sip_xnu
 except:
