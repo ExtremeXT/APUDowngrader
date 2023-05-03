@@ -4,7 +4,7 @@ import subprocess
 import plistlib
 import os
 import glob
-from datetime import datetime
+import datetime
 
 if platform.system() != "Darwin":
     print("This script is only meant to be run on macOS!")
