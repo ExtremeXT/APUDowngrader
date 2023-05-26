@@ -1,21 +1,5 @@
-# NootedRed on Monterey
+# EOL Notice
 
-Using NRed on macOS Monterey requires a downgrade of 2 kexts: AMDRadeonX5000HWLibs and AMDRadeonX6000Framebuffer, because Apple removed the logic for our APUs from the Monterey+ versions. This script automates the whole process of downgrading. 
+This project has been deprecated in favour of the clean System Kext Collection injection method developed by NyanCatTW1 at Noot Inc.
 
-## Prerequisites
-
-To use this script, you need to partially disable SIP: csr-active-config -> 03080000 or higher, and Apple Secure Boot: SecureBootModel -> Disabled.
-This will weaken macOS' security by a little bit. It will enable installing unsigned kext extensions and modifying the file system of macOS.
-You will also not be able to download any delta OTA updates, so when you want to update macOS, you will need to download the full 12GB update.
-It is up to each person to decide if this compromise is worth it.
-
-You will need to copy the 2 kexts from macOS Big Sur into any subdirectory of the script location, it will search for it.
-Because of copyright limitations with Apple, we are unable to just upload the kexts on this repository.
-
-# Credits
-
-Apple for macOS
-
-Visual and NyanCatTW1 for NootedRed
-
-Dortania for OpenCore Legacy Patcher
+For further instructions, you shall join our Telegram supergroup located [here](https://t.me/NootInc) and see the instructions located in the pins of the `AMD Hackbook Help` topic
